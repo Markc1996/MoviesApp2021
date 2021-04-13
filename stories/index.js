@@ -3,6 +3,8 @@ import { storiesOf } from "@storybook/react";
 import MovieCard from "../src/components/movieCard";
 import FilterMoviesCard from "../src/components//filterMoviesCard";
 import MoviesHeader from "../src/components/headerMovieList";
+import MovieDetails from "../src/components/movieDetails";
+import MovieHeader from '../src/components/headerMovie'
 
 const sample = {
     adult: false,
@@ -99,7 +101,15 @@ const sample = {
 storiesOf("Home Page/FilterMoviesCard", module)
   .add("default", () => <FilterMoviesCard /> )
 
-  
+
   storiesOf("Home Page/Header", module).add("default", () => (
     <MoviesHeader title="Discover Movies" />
+  ));
+
+  storiesOf("Movie Details Page/MovieDetails", module).add("default", () => (
+    <MovieDetails movie={sample} />
+  ));
+
+  storiesOf("Movie Details Page/MovieHeader", module).add("default", () => (
+    <MovieHeader movie={sample} />
   ));
