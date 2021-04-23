@@ -19,8 +19,19 @@ const reducer = (state, action) => {
       return {
         movies: action.payload.movies,
       };
+
+      case "add-review":
+        return {
+          movies: state.movies.map((m) =>
+            m.id === action.payload.movie.id
+              ? { ...m, review: action.payload.review }
+              : m
+          )
+        };
+
     default:
       return state;
+      
   }
 };
 
@@ -42,6 +53,10 @@ const MoviesContextProvider = (props) => {
     });
   };
 
+  const addReview = (movie, review) => {
+    dispatch({ type: "add-review", payload: { movie, review } });
+  };
+
   useEffect(() => {
     getMovies().then((movies) => {
       dispatch({ type: "load-discover-movies", payload: { movies } });
@@ -55,11 +70,14 @@ const MoviesContextProvider = (props) => {
         movies: state.movies,
         addToFavorites: addToFavorites,
         removeFromFavorites: removeFromFavorites,
+        addReview: addReview,
       }}
     >
       {props.children}
     </MoviesContext.Provider>
   );
 };
+
+
 
 export default MoviesContextProvider;
