@@ -1,5 +1,7 @@
-import React, { useReducer, useEffect } from "react";
-import { getMovies } from "../api/tmdb-api";
+import React, { useEffect, createContext, useReducer } from "react";
+import { getMovies, getUpcomingMovies } from "../api/tmdb-api";
+
+export const MoviesContext = createContext(null);
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -8,49 +10,42 @@ const reducer = (state, action) => {
         movies: state.movies.map((m) =>
           m.id === action.payload.movie.id ? { ...m, favorite: true } : m
         ),
+        upcoming: [...state.upcoming],
       };
     case "remove-favorite":
       return {
         movies: state.movies.map((m) =>
           m.id === action.payload.movie.id ? { ...m, favorite: false } : m
         ),
+        upcoming: [...state.upcoming],
       };
     case "load-discover-movies":
       return {
         movies: action.payload.movies,
+        upcoming: [...state.upcoming]
       };
-
-      case "add-review":
-        return {
-          movies: state.movies.map((m) =>
-            m.id === action.payload.movie.id
-              ? { ...m, review: action.payload.review }
-              : m
-          )
-        };
-
+    case "load-upcoming":
+      return { upcoming: action.payload.movies, movies: [...state.movies] };
+    case "add-review":
+      return {
+        movies: state.movies.map((m) =>
+          m.id === action.payload.movie.id
+            ? { ...m, review: action.payload.review }
+            : m
+        ),
+        upcoming: [...state.upcoming],
+      };
     default:
       return state;
-      
   }
 };
 
-export const MoviesContext = React.createContext(null);
-
 const MoviesContextProvider = (props) => {
-  const [state, dispatch] = useReducer(reducer, { movies: [] });
+  const [state, dispatch] = useReducer(reducer, { movies: [], upcoming: [] });
 
   const addToFavorites = (movieId) => {
     const index = state.movies.map((m) => m.id).indexOf(movieId);
     dispatch({ type: "add-favorite", payload: { movie: state.movies[index] } });
-  };
-
-  const removeFromFavorites = (movieId) => {
-    const index = state.movies.map((m) => m.id).indexOf(movieId);
-    dispatch({
-      type: "remove-favorite",
-      payload: { movie: state.movies[index] },
-    });
   };
 
   const addReview = (movie, review) => {
@@ -64,12 +59,19 @@ const MoviesContextProvider = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    getUpcomingMovies().then((movies) => {
+      dispatch({ type: "load-upcoming", payload: { movies } });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <MoviesContext.Provider
       value={{
         movies: state.movies,
+        upcoming: state.upcoming,
         addToFavorites: addToFavorites,
-        removeFromFavorites: removeFromFavorites,
         addReview: addReview,
       }}
     >
@@ -77,7 +79,5 @@ const MoviesContextProvider = (props) => {
     </MoviesContext.Provider>
   );
 };
-
-
 
 export default MoviesContextProvider;
