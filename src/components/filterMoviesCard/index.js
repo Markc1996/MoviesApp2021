@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -11,7 +11,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import img from '../../images/pexels-dziana-hasanbekava-5480827.jpg'
-import { getGenres } from "../../api/tmdb-api";
+import { GenresContext } from '../../contexts/genresContext'
 
 
 
@@ -31,14 +31,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FilterMoviesCard(props) {
   const classes = useStyles();
-  const [genres, setGenres] = useState([{ id: '0', name: "All" }])
+  const context = useContext(GenresContext);
+  const { genres } = context
+ 
+  
 
-  useEffect(() => {
-    getGenres().then((allGenres) => {
-      setGenres([genres[0], ...allGenres]);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleChange = (e, type, value) => {
     e.preventDefault()
